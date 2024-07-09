@@ -6,26 +6,33 @@ import (
 	"strconv"
 )
 
+// Standard response struct for returning multiple data types
+type response struct {
+	Status  string      `json:"status"`
+	Message string      `json:"message,omitempty"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
 func getTasksHandler(w http.ResponseWriter, r *http.Request) {
 	tasks, err := getTasks()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	json.NewEncoder(w).Encode(tasks)
+	sendSuccessResponse(w, tasks)
 }
 
 func createTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var task Task
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	if err := createTask(task.Title, task.Notes); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	sendSuccessResponse(w, "Task created successfully")
 }
 
 func updateTaskStatusHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,41 +42,57 @@ func updateTaskStatusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := updateTaskStatus(request.ID, request.Completed); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	sendSuccessResponse(w, "Task status updated successfully")
 }
 
 func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var task Task
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	if err := updateTask(task.ID, task.Title, task.Notes, task.Completed); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	sendSuccessResponse(w, "Task updated successfully")
 }
 
 func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Query().Get("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "invalid task ID", http.StatusBadRequest)
+		sendErrorResponse(w, http.StatusBadRequest, "Invalid task ID")
 		return
 	}
 	if err := deleteTask(id); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	sendSuccessResponse(w, "Task deleted successfully")
+}
+
+func sendErrorResponse(w http.ResponseWriter, statusCode int, message string) {
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(response{
+		Status:  "error",
+		Message: message,
+	})
+}
+
+func sendSuccessResponse(w http.ResponseWriter, data interface{}) {
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response{
+		Status: "success",
+		Data:   data,
+	})
 }
