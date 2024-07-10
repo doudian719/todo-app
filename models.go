@@ -48,3 +48,21 @@ func deleteTask(id int) error {
 	_, err := db.Exec("DELETE FROM tasks WHERE id = ?", id)
 	return err
 }
+
+func searchTasks(query string) ([]Task, error) {
+	rows, err := db.Query("SELECT id, title, notes, completed FROM tasks WHERE title LIKE ? OR notes LIKE ?", "%"+query+"%", "%"+query+"%")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	tasks := []Task{}
+	for rows.Next() {
+		var task Task
+		if err := rows.Scan(&task.ID, &task.Title, &task.Notes, &task.Completed); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
+}

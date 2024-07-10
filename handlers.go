@@ -81,6 +81,20 @@ func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w, "Task deleted successfully")
 }
 
+func searchTasksHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("q")
+	if query == "" {
+		sendErrorResponse(w, http.StatusBadRequest, "Query parameter is required")
+		return
+	}
+	tasks, err := searchTasks(query)
+	if err != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	sendSuccessResponse(w, tasks)
+}
+
 func sendErrorResponse(w http.ResponseWriter, statusCode int, message string) {
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(response{
