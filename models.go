@@ -5,14 +5,19 @@ type Task struct {
 	Title     string `json:"title"`
 	Notes     string `json:"notes"`
 	Completed bool   `json:"completed"`
+	DueDate   string `json:"due_date"`
+	Priority  int    `json:"priority"`
 }
 
 func getTasks() ([]Task, error) {
-	rows, err := db.Query("SELECT id, title, notes, completed FROM tasks ORDER BY completed, id")
+	rows, err := db.Query(`
+		SELECT id, title, notes, completed, due_date, priority
+		FROM tasks 
+		ORDER BY completed, priority, due_date, id
+		`)
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close() // close connection at end of getTasks func
 
 	tasks := []Task{}
@@ -20,7 +25,7 @@ func getTasks() ([]Task, error) {
 		var task Task
 
 		// Scan current row and insert data in each of these pointers
-		if err := rows.Scan(&task.ID, &task.Title, &task.Notes, &task.Completed); err != nil {
+		if err := rows.Scan(&task.ID, &task.Title, &task.Notes, &task.Completed, &task.DueDate, &task.Priority); err != nil {
 			return nil, err
 		}
 		tasks = append(tasks, task)
@@ -29,8 +34,11 @@ func getTasks() ([]Task, error) {
 }
 
 // This func has a return type of error
-func createTask(title, notes string) error {
-	_, err := db.Exec("INSERT INTO tasks (title, notes, completed) VALUES (?, ?, ?)", title, notes, false)
+func createTask(title, notes, dueDate string, priority int) error {
+	_, err := db.Exec(`
+		INSERT INTO tasks (title, notes, completed, due_date, priority) VALUES (?, ?, ?, ?, ?)`,
+		title, notes, false, dueDate, priority,
+	)
 	return err
 }
 
@@ -39,8 +47,8 @@ func updateTaskStatus(id int, completed bool) error {
 	return err
 }
 
-func updateTask(id int, title, notes string, completed bool) error {
-	_, err := db.Exec("UPDATE tasks SET title = ?, notes = ?, completed = ? WHERE id = ?", title, notes, completed, id)
+func updateTask(id int, title, notes, dueDate string, completed bool, priority int) error {
+	_, err := db.Exec("UPDATE tasks SET title = ?, notes = ?, completed = ?, due_date = ?, priority = ? WHERE id = ?", title, notes, completed, dueDate, priority, id)
 	return err
 }
 

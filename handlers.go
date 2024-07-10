@@ -28,7 +28,7 @@ func createTaskHandler(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := createTask(task.Title, task.Notes); err != nil {
+	if err := createTask(task.Title, task.Notes, task.DueDate, task.Priority); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -60,7 +60,7 @@ func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		sendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := updateTask(task.ID, task.Title, task.Notes, task.Completed); err != nil {
+	if err := updateTask(task.ID, task.Title, task.Notes, task.DueDate, task.Completed, task.Priority); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

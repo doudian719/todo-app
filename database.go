@@ -26,7 +26,9 @@ func initDB() {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT,
 			notes TEXT,
-			completed BOOLEAN
+			completed BOOLEAN,
+			due_date TEXT,
+			priority INTEGER
 		);`
 		_, err = db.Exec(createTableQuery)
 		if err != nil {
