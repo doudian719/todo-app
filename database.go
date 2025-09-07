@@ -5,7 +5,7 @@ import (
 	"log"
 	"sync"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite" // comment: pure-Go sqlite
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 func initDB() {
 	once.Do(func() {
 		var err error
-		db, err = sql.Open("sqlite3", "./tasks.db")
+		db, err = sql.Open("sqlite", "./tasks.db")
 		if err != nil {
 			log.Fatalf("Could not open database: %s\n", err.Error())
 		}

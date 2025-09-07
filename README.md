@@ -1,260 +1,179 @@
-# Golang To-Do List Application
+# Todo App - 任务管理应用
 
-## Overview
+一个现代化的全栈任务管理应用，使用Go语言作为后端，React + TypeScript作为前端。
 
-This is a simple To-Do List application implemented in Go (Golang). The application allows users to manage tasks with features such as creating, updating, deleting tasks, and persisting data in an SQLite database. It includes authentication to ensure that only authorized users can access the task management functionality.
+## 功能特性
 
-## Features
+### 后端功能
+- ✅ RESTful API设计
+- ✅ SQLite数据库存储
+- ✅ JWT认证（简化版）
+- ✅ CORS支持
+- ✅ 静态文件服务
 
-- **Create Tasks:** Add new tasks with a title and optional notes.
-- **Update Tasks:** Modify existing tasks' title, notes, completion status, due date, and priority.
-- **Delete Tasks:** Remove tasks by their ID.
-- **List Tasks:** Retrieve all tasks with incomplete tasks listed first, followed by completed tasks.
-- **Search Tasks:** Find tasks by title or notes.
-- **Authentication:** Secure access to endpoints with token-based authentication.
+### 前端功能
+- ✅ 现代化React + TypeScript界面
+- ✅ 响应式设计，支持移动端
+- ✅ 任务CRUD操作
+- ✅ 实时搜索功能
+- ✅ 任务状态筛选
+- ✅ 优先级管理
+- ✅ 截止日期提醒
+- ✅ 逾期任务标识
 
-## Getting Started
+## 技术栈
 
-### Prerequisites
+### 后端
+- **Go 1.23+**
+- **SQLite** - 轻量级数据库
+- **标准库** - 无外部依赖
 
-- **Go**: Ensure you have Go installed. You can download it from [the official Go website](https://golang.org/dl/).
-- **SQLite**: The application uses SQLite as the database. It comes bundled with the `github.com/mattn/go-sqlite3` package.
+### 前端
+- **React 18** - 用户界面框架
+- **TypeScript** - 类型安全
+- **Tailwind CSS** - 样式框架
+- **Axios** - HTTP客户端
+- **Lucide React** - 图标库
+- **date-fns** - 日期处理
 
-### Installation
+## 快速开始
 
-1. **Clone the Repository**
+### 1. 安装依赖
 
-   ```sh
-   git clone https://github.com/your-username/todo-list.git
-   cd todo-list
-   ```
+#### 后端依赖
+```bash
+go mod tidy
+```
 
-2. **Initialize the Go Module**
+#### 前端依赖
+```bash
+npm install
+```
 
-   If the `go.mod` file does not exist, initialize a new Go module:
+### 2. 启动应用
 
-   ```sh
-   go mod init todo-list
-   ```
+#### 方式一：分别启动（推荐用于开发）
 
-3. **Get Dependencies**
+1. 启动后端服务器：
+```bash
+go run .
+```
 
-   Install the required dependencies:
+2. 启动前端开发服务器：
+```bash
+npm start
+```
 
-   ```sh
-   go get github.com/mattn/go-sqlite3
-   ```
+访问 http://localhost:3000 查看前端界面
 
-4. **Build the Application**
+#### 方式二：构建并集成启动
 
-   Build the application to ensure everything is set up correctly:
+1. 构建前端：
+```bash
+npm run build
+```
 
-   ```sh
-   go build
-   ```
+2. 启动后端（会自动服务前端文件）：
+```bash
+go run .
+```
 
-5. **Run the Application**
+访问 http://localhost:8080 查看完整应用
 
-   Start the server:
+## API 接口
 
-   ```sh
-   go run main.go
-   ```
+所有API接口都需要在请求头中包含认证token：
 
-   The server will start on `http://localhost:8080`.
-
-### API Endpoints
-
-#### 1. **Get All Tasks**
-
-   **Endpoint:** `/tasks`  
-   **Method:** `GET`  
-   **Description:** Retrieves all tasks with incomplete tasks listed first, followed by completed tasks.
-
-   **Example Request:**
-
-   ```sh
-   curl -X GET http://localhost:8080/tasks -H "Authorization: Bearer valid-token-123"
-   ```
-
-   **Response:**
-
-   ```json
-   [
-       {
-           "id": 1,
-           "title": "Buy groceries",
-           "notes": "Milk, Bread, Eggs",
-           "completed": false
-       },
-       {
-           "id": 2,
-           "title": "Read book",
-           "notes": "Finish reading 'Golang Programming'",
-           "completed": false
-       },
-       {
-           "id": 3,
-           "title": "Pay bills",
-           "notes": "Electricity and Water",
-           "completed": true
-       }
-   ]
-   ```
-
-#### 2. **Create a New Task**
-
-   **Endpoint:** `/task`  
-   **Method:** `POST`  
-   **Description:** Creates a new task with a title and optional notes.
-
-   **Example Request:**
-
-   ```sh
-   curl -X POST -H "Content-Type: application/json" -d '{
-       "title": "Clean the house",
-       "notes": "Living room and kitchen",
-       "due_date": "2024-08-01",
-       "priority": 1
-   }' http://localhost:8080/task -H "Authorization: Bearer valid-token-123"
-   ```
-
-   **Response:**
-
-   ```json
-    [
-        {
-            "status":"success",
-            "data":"Task created successfully"
-        }
-    ]
-   ```
-
-#### 3. **Update a Task**
-
-   **Endpoint:** `/task/update`  
-   **Method:** `POST`  
-   **Description:** Updates an existing task's title, notes, completion status, due date, and priority.
-
-   **Example Request:**
-
-   ```sh
-   curl -X POST -H "Content-Type: application/json" -d '{
-       "id": 1,
-       "title": "Buy groceries and cook dinner",
-       "notes": "Milk, Bread, Eggs, and Chicken",
-       "completed": true,
-       "due_date": "2024-07-15",
-       "priority": 2
-   }' http://localhost:8080/task/update -H "Authorization: Bearer valid-token-123"
-   ```
-
-   **Response:**
-
-   ```json
-    [
-        {
-            "status":"success",
-            "data":"Task updated successfully"
-        }
-    ]
-   ```
-
-#### 4. **Update a Task's Completion Status**
-
-   **Endpoint:** `/task/status`  
-   **Method:** `POST`  
-   **Description:** Updates an existing task's completion status only.
-
-   **Example Request:**
-
-   ```sh
-   curl -X POST -H "Content-Type: application/json" -d '{
-       "id": 1,
-       "completed": true,
-   }' http://localhost:8080/task/status -H "Authorization: Bearer valid-token-123"
-   ```
-
-   **Response:**
-
-   ```json
-    [
-        {
-            "status":"success",
-            "data":"Task status updated successfully"
-        }
-    ]
-   ```
-
-#### 5. **Delete a Task**
-
-   **Endpoint:** `/task/delete`  
-   **Method:** `GET`  
-   **Description:** Deletes a task by its ID.
-
-   **Example Request:**
-
-   ```sh
-   curl -X GET "http://localhost:8080/task/delete?id=1" -H "Authorization: Bearer valid-token-123"
-   ```
-
-   **Response:**
-
-   ```json
-    [
-        {
-            "status":"success",
-            "data":"Task deleted successfully"
-        }
-    ]
-   ```
-
-#### 6. **Search Tasks**
-
-   **Endpoint:** `/task/search`  
-   **Method:** `GET`  
-   **Description:** Searches for tasks by title or notes.
-
-   **Example Request:**
-
-   ```sh
-   curl -X GET "http://localhost:8080/task/search?q=book" -H "Authorization: Bearer valid-token-123"
-   ```
-
-   **Response:**
-
-   ```json
-   [
-       {
-           "id": 2,
-           "title": "Read book",
-           "notes": "Finish reading Golang Programming",
-           "completed": false
-       }
-   ]
-   ```
-
-### Authentication
-
-To access the API endpoints, include a valid token in the `Authorization` header. The token should be prefixed with `Bearer`.
-
-**Example Header:**
-```sh
+```
 Authorization: Bearer valid-token-123
 ```
 
-**Predefined Valid Token:**
-- `valid-token-123`
+### 任务管理
 
-### Project Structure
+- `GET /api/tasks` - 获取所有任务
+- `POST /api/task` - 创建新任务
+- `POST /api/task/status` - 更新任务状态
+- `POST /api/task/update` - 更新任务详情
+- `DELETE /api/task/delete?id={id}` - 删除任务
+- `GET /api/task/search?q={query}` - 搜索任务
+
+### 请求示例
+
+#### 创建任务
+```bash
+curl -X POST http://localhost:8080/api/task \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer valid-token-123" \
+  -d '{
+    "title": "完成项目文档",
+    "notes": "编写API文档和用户手册",
+    "due_date": "2024-01-15",
+    "priority": 2
+  }'
+```
+
+#### 更新任务状态
+```bash
+curl -X POST http://localhost:8080/api/task/status \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer valid-token-123" \
+  -d '{
+    "id": 1,
+    "completed": true
+  }'
+```
+
+## 项目结构
 
 ```
-todo-list/
-├── go.mod
-├── go.sum
-├── main.go
-├── handlers.go
-├── middleware.go
-├── models.go
-├── database.go
+todo-app/
+├── main.go              # 主程序入口
+├── handlers.go          # API处理器
+├── models.go            # 数据模型和数据库操作
+├── database.go          # 数据库初始化
+├── middleware.go        # 中间件（认证、CORS）
+├── go.mod              # Go模块配置
+├── tasks.db            # SQLite数据库文件
+├── package.json        # Node.js依赖配置
+├── tsconfig.json       # TypeScript配置
+├── tailwind.config.js  # Tailwind CSS配置
+├── public/             # 静态文件
+│   └── index.html
+└── src/                # React源代码
+    ├── components/     # React组件
+    │   ├── TaskCard.tsx
+    │   ├── TaskForm.tsx
+    │   ├── SearchBar.tsx
+    │   ├── FilterBar.tsx
+    │   └── EmptyState.tsx
+    ├── services/       # API服务
+    │   └── api.ts
+    ├── types/          # TypeScript类型定义
+    │   └── index.ts
+    ├── App.tsx         # 主应用组件
+    ├── App.css         # 样式文件
+    ├── index.tsx       # React入口
+    └── index.css       # 全局样式
 ```
+
+## 开发说明
+
+### 数据库
+应用使用SQLite数据库，数据库文件为`tasks.db`。首次运行时会自动创建数据库表和结构。
+
+### 认证
+当前使用简化的token认证，有效token为`valid-token-123`。在生产环境中应该使用更安全的认证机制。
+
+### 前端开发
+- 使用`npm start`启动开发服务器
+- 支持热重载
+- 自动打开浏览器
+
+### 构建部署
+- 使用`npm run build`构建生产版本
+- 构建文件位于`build/`目录
+- 后端会自动服务构建的前端文件
+
+## 许可证
+
+MIT License
